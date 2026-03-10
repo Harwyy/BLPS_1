@@ -6,7 +6,7 @@ import com.blps.blps.entity.Order;
 import com.blps.blps.entity.enums.CourierStatus;
 import com.blps.blps.entity.enums.OrderStatus;
 import com.blps.blps.exception.BusinessException;
-import com.blps.blps.mapper.OrderMapper;
+import com.blps.blps.mapper.RestaurantOrderResponseMapper;
 import com.blps.blps.repository.CourierRepository;
 import com.blps.blps.repository.OrderRepository;
 import java.time.LocalDateTime;
@@ -18,44 +18,48 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class RestaurantOrderService {
+public class RestaurantService {
 
     private final OrderRepository orderRepository;
     private final CourierRepository courierRepository;
-    private final OrderMapper orderMapper;
+    private final RestaurantOrderResponseMapper restaurantOrderResponseMapper;
 
     @Transactional(readOnly = true)
     public List<RestaurantOrderResponse> getOrdersByRestaurantAndStatus(Long restaurantId, OrderStatus status) {
         return orderRepository.findByRestaurantIdAndStatus(restaurantId, status).stream()
-                .map(orderMapper::mapToResponse)
+                .map(restaurantOrderResponseMapper::mapToRestaurantOrderResponse)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public RestaurantOrderResponse confirmOrder(Long restaurantId, Long orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException("Заказ не найден"));
+        Order order = findOrderAndValidateRestaurant(orderId, restaurantId);
+
         if (order.getStatus() != OrderStatus.SENT_TO_RESTAURANT) {
             throw new BusinessException("Невозможно подтвердить заказ в статусе " + order.getStatus());
         }
+
         order.setStatus(OrderStatus.CONFIRMED);
         order = orderRepository.save(order);
-        return orderMapper.mapToResponse(order);
+        return restaurantOrderResponseMapper.mapToRestaurantOrderResponse(order);
     }
 
     @Transactional
     public RestaurantOrderResponse declineOrder(Long restaurantId, Long orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException("Заказ не найден"));
+        Order order = findOrderAndValidateRestaurant(orderId, restaurantId);
+
         if (order.getStatus() != OrderStatus.SENT_TO_RESTAURANT) {
             throw new BusinessException("Невозможно отклонить заказ в статусе " + order.getStatus());
         }
+
         order.setStatus(OrderStatus.CANCELED_BY_RESTAURANT);
         order = orderRepository.save(order);
-        return orderMapper.mapToResponse(order);
+        return restaurantOrderResponseMapper.mapToRestaurantOrderResponse(order);
     }
 
     @Transactional
-    public boolean assignCourier(Long orderId, Long restaurantId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new BusinessException("Заказ не найден"));
+    public boolean markOrderAsReady(Long orderId, Long restaurantId) {
+        Order order = findOrderAndValidateRestaurant(orderId, restaurantId);
 
         if (order.getStatus() != OrderStatus.CONFIRMED) {
             throw new BusinessException("Нельзя назначить курьера для заказа в статусе " + order.getStatus());
@@ -74,5 +78,19 @@ public class RestaurantOrderService {
         orderRepository.save(order);
         courierRepository.save(courier);
         return true;
+    }
+
+    private Order findOrderAndValidateRestaurant(Long orderId, Long restaurantId) {
+        var order = orderRepository
+                .findById(orderId)
+                .orElseThrow(() -> new BusinessException("Заказ с id " + orderId + " не найден"));
+
+        if (order.getRestaurant() == null) {
+            throw new BusinessException("Заказ не привязан к ресторану");
+        }
+        if (!order.getRestaurant().getId().equals(restaurantId)) {
+            throw new BusinessException("Заказ не принадлежит указанному ресторану");
+        }
+        return order;
     }
 }

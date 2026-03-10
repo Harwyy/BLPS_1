@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class OrderInfoResponse {
+
     private Long id;
     private Long userId;
     private Long restaurantId;

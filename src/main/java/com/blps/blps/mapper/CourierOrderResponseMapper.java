@@ -1,6 +1,7 @@
 package com.blps.blps.mapper;
 
-import com.blps.blps.dto.OrderInfoResponse;
+import com.blps.blps.dto.AddressDto;
+import com.blps.blps.dto.CourierOrderResponse;
 import com.blps.blps.dto.OrderItemDto;
 import com.blps.blps.entity.Order;
 import java.util.List;
@@ -10,29 +11,26 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class OrderInfoResponseMapper {
+public class CourierOrderResponseMapper {
 
     private final AddressMapper addressMapper;
 
-    public OrderInfoResponse mapToOrderInfoResponse(Order order) {
-        OrderInfoResponse response = new OrderInfoResponse();
+    public CourierOrderResponse mapToResponse(Order order) {
+        CourierOrderResponse response = new CourierOrderResponse();
+        response.setOrderId(order.getId());
+        response.setStatus(order.getStatus().name());
 
-        response.setId(order.getId());
-        response.setUserId(order.getUser().getId());
-        response.setRestaurantId(order.getRestaurant().getId());
-        response.setCourierId(order.getCourier() != null ? order.getCourier().getId() : null);
-        response.setStatus(order.getStatus());
+        AddressDto addressDto = addressMapper.mapToAddressDto(order.getDeliveryAddress());
+        response.setDeliveryAddress(addressDto);
 
-        response.setTotalAmount(order.getTotalAmount().doubleValue());
-        response.setPaymentStatus(order.getPaymentStatus());
+        response.setClientName(order.getUser().getName());
+        response.setClientPhone(order.getUser().getPhone());
+
         response.setEstimatedDeliveryTime(order.getEstimatedDeliveryTime());
-
         response.setCreatedAt(order.getCreatedAt());
         response.setAssignedAt(order.getAssignedAt());
         response.setPickedUpAt(order.getPickedUpAt());
         response.setDeliveredAt(order.getDeliveredAt());
-
-        response.setDeliveryAddress(addressMapper.mapToAddressDto(order.getDeliveryAddress()));
 
         List<OrderItemDto> itemDtos = order.getItems().stream()
                 .map(item -> {

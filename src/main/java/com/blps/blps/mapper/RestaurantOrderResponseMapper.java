@@ -9,19 +9,19 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OrderMapper {
+public class RestaurantOrderResponseMapper {
 
-    public RestaurantOrderResponse mapToResponse(Order order) {
+    public RestaurantOrderResponse mapToRestaurantOrderResponse(Order order) {
         RestaurantOrderResponse response = new RestaurantOrderResponse();
         response.setOrderId(order.getId());
 
         List<OrderItemDto> items =
-                order.getItems().stream().map(this::mapToItemDto).collect(Collectors.toList());
+                order.getItems().stream().map(this::mapToOrderItemDto).collect(Collectors.toList());
         response.setItems(items);
         return response;
     }
 
-    public OrderItemDto mapToItemDto(OrderItem item) {
+    public OrderItemDto mapToOrderItemDto(OrderItem item) {
         OrderItemDto dto = new OrderItemDto();
         dto.setProductName(item.getProduct().getName());
         dto.setQuantity(item.getQuantity());

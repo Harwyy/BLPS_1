@@ -11,3 +11,5 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: true
+server:
+  port: 8080

@@ -6,8 +6,9 @@ import lombok.Data;
 
 @Data
 public class CourierOrderResponse {
+
     private Long orderId;
-    private String status; // статус заказа
+    private String status;
     private AddressDto deliveryAddress;
     private String clientName;
     private String clientPhone;

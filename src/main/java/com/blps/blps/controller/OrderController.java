@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/api/order")
 @RequiredArgsConstructor
 public class OrderController {
 
@@ -28,9 +28,9 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderInfoResponse> getOrder(@PathVariable Long id) {
-        OrderInfoResponse response = orderService.getOrderById(id);
+    @GetMapping("/info")
+    public ResponseEntity<OrderInfoResponse> getOrderInfo(@RequestHeader("X-Order-Id") Long orderId) {
+        OrderInfoResponse response = orderService.getOrderById(orderId);
         return ResponseEntity.ok(response);
     }
 }
