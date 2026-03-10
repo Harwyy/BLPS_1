@@ -23,6 +23,7 @@ public class RestaurantOrderResponseMapper {
 
     public OrderItemDto mapToOrderItemDto(OrderItem item) {
         OrderItemDto dto = new OrderItemDto();
+        dto.setProductId(item.getProduct().getId());
         dto.setProductName(item.getProduct().getName());
         dto.setQuantity(item.getQuantity());
         dto.setPrice(item.getPrice().doubleValue());
