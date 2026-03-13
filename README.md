@@ -15,6 +15,82 @@
 Разработать набор curl-скриптов, либо набор запросов для REST клиента Insomnia для тестирования публичных интерфейсов разработанного программного модуля. Запросы Insomnia оформить в виде файла экспорта.
 Развернуть разработанное приложение на сервере helios.
 
+## BPMN 2.0 диаграмма
+![](files/Client.png)
+![](files/DeliveryService.png)
+## UML-диаграммы классов
+![Диаграмма классов](files/EntityDiagram.png)
+
+## Спецификация REST API
+### Управление заказами со стороны курьера.
+### Courier Controller ```/api/courier```
+
+**Получить активные заказы курьера** \
+**GET** ``/api/courier/active`` \
+**Заголовки:** ``X-Courier-Id``
+
+**Отметить, что курьер забрал заказ** \
+**PUT** ```/api/courier/pickup``` \
+**Заголовки:** ``X-Courier-Id``
+
+**Отметить, что заказ доставлен** \
+**PUT** ```/api/courier/deliver``` \
+**Заголовки:** ``X-Courier-Id``
+
+### Оформление и проверка заказа покупателем.
+### Order Controller ```/api/order```
+
+**Проверить заказ (расчёт стоимости и времени)** \
+**POST** ```/api/order/check``` \
+**Тело запроса:** 
+```bash
+{
+  "userId": 123,
+  "restaurantId": 123,
+  "items": [
+    {"productId": 1, "quantity": 2},
+    {"productId": 3, "quantity": 1}
+  ]
+}
+```
+
+**Подтвердить заказ (создать заказ)** \
+**POST** ```/api/order/confirm``` \
+**Тело запроса:** 
+```bash
+{
+  "userId": 123,
+  "restaurantId": 123,
+  "items": [
+    {"productId": 1, "quantity": 2},
+    {"productId": 3, "quantity": 1}
+  ]
+}
+```
+
+**Получить информацию о заказе по ID** \
+**GET ** ```/api/order/info``` \
+**Заголовки:** ``X-Order-Id``
+
+### Управление заказами со стороны ресторана.
+### Restaurant Controller ```/api/restaurant```
+
+**Получить новые заказы** \
+**GET** ```/api/restaurant/active``` \
+**Заголовки:** ``X-Restaurant-Id``
+
+**Подтвердить заказ** \
+**PUT** ```/api/restaurant/confirm``` \
+**Заголовки:** ``X-Restaurant-Id``
+
+**Отклонить заказ** \
+**PUT** ```/api/restaurant/decline``` \
+**Заголовки:** ``X-Restaurant-Id``
+
+**Отметить заказ как готовый** \
+**PUT** ```/api/restaurant/ready``` \
+**Заголовки:** ``X-Restaurant-Id``
+
 ## Запуск и управление проектом
 
 ### Запуск приложения
