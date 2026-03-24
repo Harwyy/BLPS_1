@@ -7,30 +7,33 @@ import org.springframework.stereotype.Component;
 @Component
 public class AddressMapper {
 
-    public Address mapToAddress(AddressDto dto) {
-        if (dto == null) return null;
+    public AddressDto toDto(Address address) {
+        if (address == null) {
+            return null;
+        }
+        return new AddressDto(
+                address.getCity(),
+                address.getStreet(),
+                address.getBuilding(),
+                address.getLatitude(),
+                address.getLongitude(),
+                address.getFloor(),
+                address.getApartment()
+        );
+    }
+
+    public Address toEntity(AddressDto dto) {
+        if (dto == null) {
+            return null;
+        }
         Address address = new Address();
         address.setCity(dto.getCity());
         address.setStreet(dto.getStreet());
         address.setBuilding(dto.getBuilding());
-        address.setFloor(dto.getFloor());
-        address.setApartment(dto.getApartment());
         address.setLatitude(dto.getLatitude());
         address.setLongitude(dto.getLongitude());
+        address.setFloor(dto.getFloor());
+        address.setApartment(dto.getApartment());
         return address;
-    }
-
-    public AddressDto mapToAddressDto(Address address) {
-        if (address == null) return null;
-        AddressDto dto = new AddressDto();
-        dto.setId(address.getId());
-        dto.setCity(address.getCity());
-        dto.setStreet(address.getStreet());
-        dto.setBuilding(address.getBuilding());
-        dto.setFloor(address.getFloor());
-        dto.setApartment(address.getApartment());
-        dto.setLatitude(address.getLatitude());
-        dto.setLongitude(address.getLongitude());
-        return dto;
     }
 }

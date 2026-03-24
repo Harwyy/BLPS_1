@@ -16,8 +16,7 @@
 Развернуть разработанное приложение на сервере helios.
 
 ## BPMN 2.0 диаграмма
-![](files/Client.png)
-![](files/DeliveryService.png)
+
 ## UML-диаграммы классов
 ![Диаграмма классов](files/EntityDiagram.png)
 

@@ -1,6 +1,5 @@
-package com.blps.blps.dto;
+package com.blps.blps.dto.request;
 
-import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItemDto {
+public class OrderItemRequest {
     private Long productId;
-    private String productName;
     private Integer quantity;
-    private BigDecimal price;
 }

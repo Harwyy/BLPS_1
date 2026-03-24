@@ -26,6 +26,20 @@ public class Courier {
     @Enumerated(EnumType.STRING)
     private CourierStatus status = CourierStatus.AVAILABLE;
 
+    @Column(nullable = false)
+    private String city;
+
+    private Double currentLatitude;
+
+    private Double currentLongitude;
+
+    private Double rating;
+
+    private Integer activeOrdersCount = 0;
+
+    @Transient
+    private Double score;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

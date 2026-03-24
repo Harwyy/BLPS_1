@@ -23,11 +23,8 @@ public class UserDataInitializer implements CommandLineRunner {
         List<Address> addresses = addressRepository.findAll();
 
         List<User> users = List.of(
-                createUser("Иван Петров", "ivan.petrov@example.com", "+79011234567", addresses.get(0)),
-                createUser("Мария Смирнова", "maria.smirnova@example.com", "+79022345678", addresses.get(1)),
-                createUser("Алексей Иванов", "alexey.ivanov@example.com", "+79033456789", addresses.get(2)),
-                createUser("Елена Кузнецова", "elena.kuznetsova@example.com", "+79044567890", addresses.get(3)),
-                createUser("Дмитрий Попов", "dmitry.popov@example.com", "+79055678901", addresses.get(4)));
+                createUser("Иван Петров", "ivan.petrov@example.com", "+79011234567", addresses.get(3)),
+                createUser("Мария Смирнова", "maria.smirnova@example.com", "+79022345678", addresses.get(4)));
 
         userRepository.saveAll(users);
     }

@@ -21,43 +21,52 @@ public class ProductDataInitializer implements CommandLineRunner {
     private final RestaurantRepository restaurantRepository;
 
     @Override
-    public void run(String... args) throws Exception {
-
-        List<Restaurant> restaurants = restaurantRepository.findAll();
-
+    public void run(String... args) {
+        List<Restaurant> allRestaurants = restaurantRepository.findAll();
         List<Product> products = new ArrayList<>();
 
-        products.add(createProduct(restaurants.get(0), "Чизбургер", "Сочная котлета, сыр, соус", 250.00, true));
-        products.add(createProduct(restaurants.get(0), "Гамбургер", "Классический бургер", 200.00, true));
-        products.add(createProduct(restaurants.get(0), "Картошка фри", "Хрустящая картошка", 120.00, true));
-        products.add(createProduct(restaurants.get(0), "Кола", "Напиток", 100.00, true));
-        products.add(createProduct(restaurants.get(0), "Бургер с беконом", "Временно недоступен", 320.00, false));
+        List<Restaurant> moscowRestaurants = allRestaurants.stream()
+                .filter(r ->
+                        r.getAddress() != null && "Москва".equals(r.getAddress().getCity()))
+                .toList();
 
-        products.add(createProduct(restaurants.get(1), "Маргарита", "Томатный соус, моцарелла", 450.00, true));
-        products.add(createProduct(restaurants.get(1), "Пепперони", "Острая колбаса", 550.00, true));
-        products.add(createProduct(restaurants.get(1), "Четыре сыра", "Сливочный вкус", 600.00, true));
-        products.add(createProduct(restaurants.get(1), "Гавайская", "Курица, ананас", 500.00, false));
-        products.add(createProduct(restaurants.get(1), "Чай", "Горячий напиток", 100.00, true));
-
-        products.add(createProduct(restaurants.get(2), "Филадельфия", "Лосось, сливочный сыр", 400.00, true));
-        products.add(createProduct(restaurants.get(2), "Калифорния", "Краб, авокадо", 380.00, true));
-        products.add(createProduct(restaurants.get(2), "Унаги маки", "Угорь, соус", 420.00, true));
-        products.add(createProduct(restaurants.get(2), "Сет 'Самурай'", "Ассорти роллов", 1200.00, false));
-        products.add(createProduct(restaurants.get(2), "Имбирь", "Маринованный", 50.00, true));
-
-        products.add(createProduct(restaurants.get(3), "Капучино", "Классический", 200.00, true));
-        products.add(createProduct(restaurants.get(3), "Латте", "С молоком", 220.00, true));
-        products.add(createProduct(restaurants.get(3), "Американо", "Черный кофе", 150.00, true));
-        products.add(createProduct(restaurants.get(3), "Круассан", "Слоеная выпечка", 120.00, true));
-        products.add(createProduct(restaurants.get(3), "Эспрессо", "Крепкий", 130.00, false));
-
-        products.add(createProduct(restaurants.get(4), "Борщ", "Свекла, капуста, мясо", 180.00, true));
-        products.add(createProduct(restaurants.get(4), "Пельмени", "Ручная лепка", 250.00, true));
-        products.add(createProduct(restaurants.get(4), "Компот", "Вишневый", 80.00, true));
-        products.add(createProduct(restaurants.get(4), "Котлета по-киевски", "Сливочное масло внутри", 300.00, false));
-        products.add(createProduct(restaurants.get(4), "Пюре картофельное", "Гарнир", 90.00, true));
+        for (Restaurant restaurant : moscowRestaurants) {
+            products.addAll(createProductsForRestaurant(restaurant));
+        }
 
         productRepository.saveAll(products);
+    }
+
+    private List<Product> createProductsForRestaurant(Restaurant restaurant) {
+        List<Product> products = new ArrayList<>();
+
+        switch (restaurant.getType()) {
+            case FAST_FOOD:
+                products.add(createProduct(restaurant, "Чизбургер", "Сочная котлета, сыр, соус", 250.00, true));
+                products.add(createProduct(restaurant, "Гамбургер", "Классический бургер", 200.00, true));
+                products.add(createProduct(restaurant, "Картошка фри", "Хрустящая картошка", 120.00, true));
+                products.add(createProduct(restaurant, "Кола", "Напиток", 100.00, true));
+                products.add(createProduct(restaurant, "Бургер с беконом", "Временно недоступен", 320.00, false));
+                break;
+            case ITALIAN:
+                products.add(createProduct(restaurant, "Маргарита", "Томатный соус, моцарелла", 450.00, true));
+                products.add(createProduct(restaurant, "Пепперони", "Острая колбаса", 550.00, true));
+                products.add(createProduct(restaurant, "Четыре сыра", "Сливочный вкус", 600.00, true));
+                products.add(createProduct(restaurant, "Гавайская", "Курица, ананас", 500.00, true));
+                products.add(createProduct(restaurant, "Тирамису", "Десерт", 320.00, true));
+                break;
+            case JAPANESE:
+                products.add(createProduct(restaurant, "Филадельфия", "Лосось, сливочный сыр", 400.00, true));
+                products.add(createProduct(restaurant, "Калифорния", "Краб, авокадо", 380.00, true));
+                products.add(createProduct(restaurant, "Унаги маки", "Угорь, соус", 420.00, true));
+                products.add(createProduct(restaurant, "Сет 'Самурай'", "Ассорти роллов", 1200.00, true));
+                products.add(createProduct(restaurant, "Имбирь", "Маринованный", 50.00, true));
+                break;
+            default:
+                break;
+        }
+
+        return products;
     }
 
     private Product createProduct(

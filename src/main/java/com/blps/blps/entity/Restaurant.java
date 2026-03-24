@@ -1,6 +1,7 @@
 package com.blps.blps.entity;
 
 import com.blps.blps.entity.enums.RestaurantStatus;
+import com.blps.blps.entity.enums.RestaurantType;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -29,6 +30,11 @@ public class Restaurant {
 
     @Enumerated(EnumType.STRING)
     private RestaurantStatus status = RestaurantStatus.ACTIVE;
+
+    @Enumerated(EnumType.STRING)
+    private RestaurantType type;
+
+    private Double rating;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

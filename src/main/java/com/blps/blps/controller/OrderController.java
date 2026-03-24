@@ -1,36 +1,27 @@
 package com.blps.blps.controller;
 
-import com.blps.blps.dto.OrderCheckResponse;
-import com.blps.blps.dto.OrderInfoResponse;
-import com.blps.blps.dto.OrderRequest;
+import com.blps.blps.dto.request.OrderCreateRequest;
+import com.blps.blps.dto.response.OrderResponse;
 import com.blps.blps.service.OrderService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/order")
+@RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
 
-    @PostMapping("/check")
-    public ResponseEntity<OrderCheckResponse> checkOrder(@Valid @RequestBody OrderRequest request) {
-        OrderCheckResponse response = orderService.checkOrder(request);
+    @PostMapping
+    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderCreateRequest request) {
+        OrderResponse response = orderService.createOrder(request);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/confirm")
-    public ResponseEntity<OrderInfoResponse> confirmOrder(@Valid @RequestBody OrderRequest request) {
-        OrderInfoResponse response = orderService.confirmOrder(request);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/info")
-    public ResponseEntity<OrderInfoResponse> getOrderInfo(@RequestHeader("X-Order-Id") Long orderId) {
-        OrderInfoResponse response = orderService.getOrderById(orderId);
-        return ResponseEntity.ok(response);
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.getOrderById(id));
     }
 }

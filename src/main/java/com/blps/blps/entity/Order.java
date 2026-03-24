@@ -50,6 +50,15 @@ public class Order {
     @Column(name = "payment_status", nullable = false)
     private OrderPaymentStatus paymentStatus = OrderPaymentStatus.PENDING;
 
+    @Column(name = "comment_to_restaurant")
+    private String commentToRestaurant;
+
+    @Column(name = "comment_to_courier")
+    private String commentToCourier;
+
+    @Column(name = "leave_at_door")
+    private Boolean leaveAtDoor;
+
     @Column(name = "assigned_at")
     private LocalDateTime assignedAt;
 

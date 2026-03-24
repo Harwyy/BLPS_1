@@ -1,188 +1,141 @@
 package com.blps.blps.service;
 
-import com.blps.blps.dto.*;
+import com.blps.blps.dto.AddressDto;
+import com.blps.blps.dto.request.OrderCreateRequest;
+import com.blps.blps.dto.request.OrderItemRequest;
+import com.blps.blps.dto.response.OrderResponse;
 import com.blps.blps.entity.*;
 import com.blps.blps.entity.enums.OrderPaymentStatus;
 import com.blps.blps.entity.enums.OrderStatus;
 import com.blps.blps.exception.BusinessException;
+import com.blps.blps.exception.ResourceNotFoundException;
 import com.blps.blps.mapper.AddressMapper;
-import com.blps.blps.mapper.OrderInfoResponseMapper;
+import com.blps.blps.mapper.OrderMapper;
 import com.blps.blps.repository.*;
-import com.blps.blps.util.DeliveryCalculator;
-import com.blps.blps.validation.OrderValidator;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.blps.blps.utils.DeliveryTimeCalculator;
+import com.blps.blps.utils.DistanceCalculator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
 
+    private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final RestaurantRepository restaurantRepository;
     private final ProductRepository productRepository;
-    private final OrderRepository orderRepository;
     private final AddressRepository addressRepository;
-    private final DeliveryCalculator deliveryCalculator;
-    private final OrderValidator orderValidator;
+    private final OrderMapper orderMapper;
+    private final DistanceCalculator distanceCalculator;
     private final AddressMapper addressMapper;
-    private final OrderInfoResponseMapper orderInfoResponseMapper;
-
-    @Transactional(readOnly = true)
-    public OrderInfoResponse getOrderById(Long id) {
-        Order order = orderRepository
-                .findById(id)
-                .orElseThrow(() -> new BusinessException("Заказ с id " + id + " не найден"));
-        OrderInfoResponse response = orderInfoResponseMapper.mapToOrderInfoResponse(order);
-        response.setSuccess(true);
-        response.setMessage("Заказ найден");
-        return response;
-    }
-
-    @Transactional(readOnly = true)
-    public OrderCheckResponse checkOrder(OrderRequest request) {
-        OrderValidationResult validation = validateOrder(request, true);
-        if (!validation.isSuccess()) {
-            return buildErrorCheckResponse(validation.getMessage());
-        }
-
-        OrderCheckResponse response = new OrderCheckResponse();
-        response.setSuccess(true);
-        response.setMessage("Заказ может быть оформлен");
-        response.setTotalAmount(validation.getTotal());
-        response.setEstimatedDeliveryTime(validation.getDeliveryTime());
-        response.setItems(validation.getValidatedItems());
-        return response;
-    }
+    private final PaymentService paymentService;
+    private final DeliveryTimeCalculator deliveryTimeCalculator;
 
     @Transactional
-    public OrderInfoResponse confirmOrder(OrderRequest request) {
-        OrderValidationResult validation = validateOrder(request, false);
-        if (!validation.isSuccess()) {
-            return buildErrorInfoResponse(validation.getMessage());
+    public OrderResponse createOrder(OrderCreateRequest request) {
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            throw new BusinessException("Заказ не может быть пустым. Добавьте хотя бы одно блюдо.");
         }
 
-        Order order = new Order();
-        order.setUser(validation.getUser());
-        order.setRestaurant(validation.getRestaurant());
-        order.setDeliveryAddress(validation.getDeliveryAddress());
-        order.setTotalAmount(BigDecimal.valueOf(validation.getTotal()));
-        order.setPaymentStatus(OrderPaymentStatus.PENDING);
-        order.setStatus(OrderStatus.SENT_TO_RESTAURANT);
-        order.setEstimatedDeliveryTime(validation.getDeliveryTime());
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден: " + request.getUserId()));
 
-        Order finalOrder = order;
-        List<OrderItem> orderItems = validation.getValidatedItems().stream()
-                .map(itemDto -> createOrderItem(itemDto, finalOrder))
-                .collect(Collectors.toList());
-        order.setItems(orderItems);
-
-        order = orderRepository.save(order);
-        processPayment(order);
-
-        OrderInfoResponse successResponse = orderInfoResponseMapper.mapToOrderInfoResponse(order);
-        successResponse.setSuccess(true);
-        successResponse.setMessage("Заказ успешно создан");
-        return successResponse;
-    }
-
-    private OrderValidationResult validateOrder(OrderRequest request, boolean isCheckOnly) {
-        User user = userRepository.findById(request.getUserId()).orElse(null);
-        if (user == null) {
-            return OrderValidationResult.failure("Пользователь не найден");
-        }
-
-        Restaurant restaurant =
-                restaurantRepository.findById(request.getRestaurantId()).orElse(null);
-        if (restaurant == null) {
-            return OrderValidationResult.failure("Ресторан не найден");
-        }
-
-        Optional<String> restaurantError = orderValidator.validateRestaurantStatus(restaurant);
-        if (restaurantError.isPresent()) {
-            return OrderValidationResult.failure(restaurantError.get());
-        }
+        Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ресторан не найден: " + request.getRestaurantId()));
 
         Address deliveryAddress;
-        if (request.getNewAddress() != null) {
-            deliveryAddress = addressMapper.mapToAddress(request.getNewAddress());
-            if (!isCheckOnly) {
-                deliveryAddress = addressRepository.save(deliveryAddress);
-            }
+        if (request.getAddress() != null && request.getAddress().getCity() != null) {
+            deliveryAddress = addressMapper.toEntity(request.getAddress());
+            deliveryAddress = addressRepository.save(deliveryAddress);
         } else {
             deliveryAddress = user.getAddress();
             if (deliveryAddress == null) {
-                return OrderValidationResult.failure("У пользователя не указан адрес доставки");
+                throw new BusinessException("У пользователя не указан адрес, и не передан адрес в запросе");
             }
         }
 
+        Order order = new Order();
+        order.setUser(user);
+        order.setRestaurant(restaurant);
+        order.setDeliveryAddress(deliveryAddress);
+        order.setCommentToRestaurant(request.getCommentToRestaurant());
+        order.setCommentToCourier(request.getCommentToCourier());
+        order.setLeaveAtDoor(request.getLeaveAtDoor());
+        order.setStatus(OrderStatus.CREATED);
+        order.setPaymentStatus(OrderPaymentStatus.PENDING);
+
+        BigDecimal total = BigDecimal.ZERO;
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (OrderItemRequest itemRequest : request.getItems()) {
+            Product product = productRepository.findById(itemRequest.getProductId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Товар не найден: " + itemRequest.getProductId()));
+
+            if (!product.isAvailable()) {
+                throw new BusinessException("Товар '" + product.getName() + "' временно недоступен");
+            }
+
+            if (!product.getRestaurant().getId().equals(restaurant.getId())) {
+                throw new BusinessException("Товар '" + product.getName() + "' не принадлежит ресторану " + restaurant.getName());
+            }
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setProduct(product);
+            orderItem.setQuantity(itemRequest.getQuantity());
+            orderItem.setPrice(product.getPrice());
+            orderItems.add(orderItem);
+
+            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity())));
+        }
+
+        order.setTotalAmount(total);
+        order.setItems(orderItems);
+
+        Order savedOrder = orderRepository.save(order);
+
         Address restaurantAddress = restaurant.getAddress();
-        if (restaurantAddress == null) {
-            return OrderValidationResult.failure("У ресторана не указан адрес");
+        boolean isWithinDistance = distanceCalculator.isWithinDeliveryDistance(restaurantAddress, deliveryAddress);
+
+        if (!isWithinDistance) {
+            savedOrder.setStatus(OrderStatus.CANCELLED);
+            order.setPaymentStatus(OrderPaymentStatus.FAILED);
+            orderRepository.save(savedOrder);
+            return orderMapper.toResponse(savedOrder);
         }
 
-        double distance = deliveryCalculator.calculateDistance(
-                restaurantAddress.getLatitude(), restaurantAddress.getLongitude(),
-                deliveryAddress.getLatitude(), deliveryAddress.getLongitude());
+        savedOrder.setStatus(OrderStatus.WAITING_PAYMENT);
+        orderRepository.save(savedOrder);
 
-        Optional<String> distanceError = orderValidator.validateDistance(distance);
-        if (distanceError.isPresent()) {
-            return OrderValidationResult.failure(distanceError.get());
+        boolean paymentSuccess = paymentService.processPayment(savedOrder);
+        if (!paymentSuccess) {
+            savedOrder.setStatus(OrderStatus.CANCELLED);
+            order.setPaymentStatus(OrderPaymentStatus.FAILED);
+            orderRepository.save(savedOrder);
+            throw new BusinessException("Оплата не прошла. Заказ отменён.");
         }
 
-        OrderValidator.ValidationResult productValidation =
-                orderValidator.validateProducts(request.getItems(), restaurant.getId());
-        if (!productValidation.isSuccess()) {
-            return OrderValidationResult.failure(productValidation.getErrorMessage());
-        }
+        savedOrder.setPaymentStatus(OrderPaymentStatus.PAID);
+        savedOrder.setStatus(OrderStatus.PAID);
+        orderRepository.save(savedOrder);
 
-        double total = productValidation.getValidatedItems().stream()
-                .mapToDouble(item -> item.getPrice() * item.getQuantity())
-                .sum();
-        int deliveryTime = deliveryCalculator.calculateDeliveryTime(distance);
+        Integer deliveryTime = deliveryTimeCalculator.calculateDeliveryTime(restaurantAddress, deliveryAddress);
+        savedOrder.setEstimatedDeliveryTime(deliveryTime);
+        orderRepository.save(savedOrder);
 
-        return OrderValidationResult.success(
-                user,
-                restaurant,
-                deliveryAddress,
-                distance,
-                productValidation.getValidatedItems(),
-                total,
-                deliveryTime);
+        return orderMapper.toResponse(savedOrder);
     }
 
-    private OrderCheckResponse buildErrorCheckResponse(String message) {
-        OrderCheckResponse response = new OrderCheckResponse();
-        response.setSuccess(false);
-        response.setMessage(message);
-        return response;
+    public OrderResponse getOrderById(Long id) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден: " + id));
+        return orderMapper.toResponse(order);
     }
 
-    private OrderInfoResponse buildErrorInfoResponse(String message) {
-        OrderInfoResponse response = new OrderInfoResponse();
-        response.setSuccess(false);
-        response.setMessage(message);
-        return response;
-    }
-
-    private OrderItem createOrderItem(OrderItemDto itemDto, Order order) {
-        Product product = productRepository
-                .findById(itemDto.getProductId())
-                .orElseThrow(() -> new BusinessException("Товар не найден после валидации"));
-        OrderItem item = new OrderItem();
-        item.setOrder(order);
-        item.setProduct(product);
-        item.setQuantity(itemDto.getQuantity());
-        item.setPrice(BigDecimal.valueOf(itemDto.getPrice()));
-        return item;
-    }
-
-    private void processPayment(Order order) {
-        order.setPaymentStatus(OrderPaymentStatus.PAID);
-        orderRepository.save(order);
-    }
 }

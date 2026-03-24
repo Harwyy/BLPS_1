@@ -2,10 +2,14 @@ package com.blps.blps.entity.enums;
 
 public enum OrderStatus {
     PENDING,
-    SENT_TO_RESTAURANT,
-    CONFIRMED,
-    CANCELED_BY_RESTAURANT,
-    COURIER_ASSIGNED,
+    CREATED,
+    WAITING_PAYMENT,
+    PAID,
+    CANCELLED_BY_REST,
+    PREPARING,
+    ASSIGNED,
+    READY,
     PICKED_UP,
-    DELIVERED
+    DELIVERED,
+    CANCELLED
 }
