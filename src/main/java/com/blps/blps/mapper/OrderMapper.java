@@ -4,10 +4,9 @@ import com.blps.blps.dto.OrderItemDto;
 import com.blps.blps.dto.response.OrderResponse;
 import com.blps.blps.entity.Order;
 import com.blps.blps.entity.OrderItem;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -31,9 +30,7 @@ public class OrderMapper {
         response.setCommentToRestaurant(order.getCommentToRestaurant());
         response.setCommentToCourier(order.getCommentToCourier());
         response.setLeaveAtDoor(order.getLeaveAtDoor());
-        response.setItems(order.getItems().stream()
-                .map(this::toOrderItemDto)
-                .collect(Collectors.toList()));
+        response.setItems(order.getItems().stream().map(this::toOrderItemDto).collect(Collectors.toList()));
         response.setTotalAmount(order.getTotalAmount());
         return response;
     }
@@ -43,7 +40,6 @@ public class OrderMapper {
                 orderItem.getProduct().getId(),
                 orderItem.getProduct().getName(),
                 orderItem.getQuantity(),
-                orderItem.getPrice()
-        );
+                orderItem.getPrice());
     }
 }

@@ -12,11 +12,6 @@ public class CourierMapper {
             return null;
         }
         return new CourierDto(
-                courier.getId(),
-                courier.getName(),
-                courier.getPhone(),
-                courier.getCity(),
-                courier.getStatus()
-        );
+                courier.getId(), courier.getName(), courier.getPhone(), courier.getCity(), courier.getStatus());
     }
 }

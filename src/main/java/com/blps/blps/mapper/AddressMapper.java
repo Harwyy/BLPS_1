@@ -18,8 +18,7 @@ public class AddressMapper {
                 address.getLatitude(),
                 address.getLongitude(),
                 address.getFloor(),
-                address.getApartment()
-        );
+                address.getApartment());
     }
 
     public Address toEntity(AddressDto dto) {

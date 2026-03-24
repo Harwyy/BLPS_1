@@ -1,6 +1,5 @@
 package com.blps.blps.service;
 
-import com.blps.blps.dto.AddressDto;
 import com.blps.blps.dto.request.OrderCreateRequest;
 import com.blps.blps.dto.request.OrderItemRequest;
 import com.blps.blps.dto.response.OrderResponse;
@@ -14,13 +13,12 @@ import com.blps.blps.mapper.OrderMapper;
 import com.blps.blps.repository.*;
 import com.blps.blps.utils.DeliveryTimeCalculator;
 import com.blps.blps.utils.DistanceCalculator;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,10 +41,12 @@ public class OrderService {
             throw new BusinessException("Заказ не может быть пустым. Добавьте хотя бы одно блюдо.");
         }
 
-        User user = userRepository.findById(request.getUserId())
+        User user = userRepository
+                .findById(request.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден: " + request.getUserId()));
 
-        Restaurant restaurant = restaurantRepository.findById(request.getRestaurantId())
+        Restaurant restaurant = restaurantRepository
+                .findById(request.getRestaurantId())
                 .orElseThrow(() -> new ResourceNotFoundException("Ресторан не найден: " + request.getRestaurantId()));
 
         Address deliveryAddress;
@@ -74,7 +74,8 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (OrderItemRequest itemRequest : request.getItems()) {
-            Product product = productRepository.findById(itemRequest.getProductId())
+            Product product = productRepository
+                    .findById(itemRequest.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Товар не найден: " + itemRequest.getProductId()));
 
             if (!product.isAvailable()) {
@@ -82,7 +83,8 @@ public class OrderService {
             }
 
             if (!product.getRestaurant().getId().equals(restaurant.getId())) {
-                throw new BusinessException("Товар '" + product.getName() + "' не принадлежит ресторану " + restaurant.getName());
+                throw new BusinessException(
+                        "Товар '" + product.getName() + "' не принадлежит ресторану " + restaurant.getName());
             }
 
             OrderItem orderItem = new OrderItem();
@@ -133,9 +135,8 @@ public class OrderService {
     }
 
     public OrderResponse getOrderById(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден: " + id));
+        Order order =
+                orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Заказ не найден: " + id));
         return orderMapper.toResponse(order);
     }
-
 }

@@ -39,8 +39,7 @@ public class PublicRestaurantService {
         for (RestaurantType type : types) {
             List<Restaurant> top3ByType = restaurantRepository.findTop3ByAddress_CityAndTypeAndStatusOrderByRatingDesc(
                     city, type, RestaurantStatus.ACTIVE);
-            topByType.put(
-                    type, top3ByType.stream().map(restaurantMapper::toDto).collect(Collectors.toList()));
+            topByType.put(type, top3ByType.stream().map(restaurantMapper::toDto).collect(Collectors.toList()));
         }
 
         return new RestaurantsWithTopByTypeResponse(

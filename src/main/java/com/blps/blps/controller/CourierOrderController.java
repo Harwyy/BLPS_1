@@ -4,11 +4,10 @@ import com.blps.blps.dto.CourierOrderSummaryDto;
 import com.blps.blps.dto.response.RestaurantOrCourierOrderActionResponse;
 import com.blps.blps.entity.enums.OrderStatus;
 import com.blps.blps.service.CourierService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/couriers/{courierId}/orders")
@@ -32,18 +31,15 @@ public class CourierOrderController {
         return ResponseEntity.ok(courierService.getOrdersByStatus(courierId, OrderStatus.PICKED_UP));
     }
 
-
     @PostMapping("/{orderId}/pickup")
     public ResponseEntity<RestaurantOrCourierOrderActionResponse> pickUpOrder(
-            @PathVariable Long courierId,
-            @PathVariable Long orderId) {
+            @PathVariable Long courierId, @PathVariable Long orderId) {
         return ResponseEntity.ok(courierService.pickUpOrder(orderId, courierId));
     }
 
     @PostMapping("/{orderId}/deliver")
     public ResponseEntity<RestaurantOrCourierOrderActionResponse> deliverOrder(
-            @PathVariable Long courierId,
-            @PathVariable Long orderId) {
+            @PathVariable Long courierId, @PathVariable Long orderId) {
         return ResponseEntity.ok(courierService.deliverOrder(orderId, courierId));
     }
 }

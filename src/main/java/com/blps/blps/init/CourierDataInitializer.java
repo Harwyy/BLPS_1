@@ -27,8 +27,8 @@ public class CourierDataInitializer implements CommandLineRunner {
         courierRepository.saveAll(couriers);
     }
 
-    private Courier createCourier(String name, String phone, String city,
-                                  double lat, double lon, double rating, int activeOrders) {
+    private Courier createCourier(
+            String name, String phone, String city, double lat, double lon, double rating, int activeOrders) {
         Courier courier = new Courier();
         courier.setName(name);
         courier.setPhone(phone);
