@@ -25,14 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
-    private final RestaurantRepository restaurantRepository;
-    private final ProductRepository productRepository;
-    private final AddressRepository addressRepository;
-    private final OrderMapper orderMapper;
-    private final DistanceCalculator distanceCalculator;
-    private final AddressMapper addressMapper;
+    private final UserService userService;
+    private final RestaurantService restaurantService;
+    private final ProductService productService;
+    private final AddressService addressService;
     private final PaymentService paymentService;
+    private final OrderMapper orderMapper;
+    private final AddressMapper addressMapper;
+    private final DistanceCalculator distanceCalculator;
     private final DeliveryTimeCalculator deliveryTimeCalculator;
 
     @Transactional
@@ -41,18 +41,14 @@ public class OrderService {
             throw new BusinessException("Заказ не может быть пустым. Добавьте хотя бы одно блюдо.");
         }
 
-        User user = userRepository
-                .findById(request.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Пользователь не найден: " + request.getUserId()));
+        User user = userService.getUserById(request.getUserId());
 
-        Restaurant restaurant = restaurantRepository
-                .findById(request.getRestaurantId())
-                .orElseThrow(() -> new ResourceNotFoundException("Ресторан не найден: " + request.getRestaurantId()));
+        Restaurant restaurant = restaurantService.getRestaurantById(request.getRestaurantId());
 
         Address deliveryAddress;
         if (request.getAddress() != null && request.getAddress().getCity() != null) {
             deliveryAddress = addressMapper.toEntity(request.getAddress());
-            deliveryAddress = addressRepository.save(deliveryAddress);
+            deliveryAddress = addressService.save(deliveryAddress);
         } else {
             deliveryAddress = user.getAddress();
             if (deliveryAddress == null) {
@@ -74,9 +70,7 @@ public class OrderService {
         List<OrderItem> orderItems = new ArrayList<>();
 
         for (OrderItemRequest itemRequest : request.getItems()) {
-            Product product = productRepository
-                    .findById(itemRequest.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Товар не найден: " + itemRequest.getProductId()));
+            Product product = productService.getProductById(itemRequest.getProductId());
 
             if (!product.isAvailable()) {
                 throw new BusinessException("Товар '" + product.getName() + "' временно недоступен");
@@ -134,9 +128,38 @@ public class OrderService {
         return orderMapper.toResponse(savedOrder);
     }
 
-    public OrderResponse getOrderById(Long id) {
+    public OrderResponse getOrderResponseByOrderId(Long id) {
         Order order =
                 orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Заказ не найден: " + id));
         return orderMapper.toResponse(order);
+    }
+
+    public Order getOrderById(Long id) {
+        return orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Заказ не найден: " + id));
+    }
+
+    public Order getOrderByIdAndCourierId(Long id, Long courierId) {
+        return orderRepository
+                .findByIdAndCourierId(id, courierId)
+                .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден или не принадлежит курьеру"));
+    }
+
+    public List<Order> getListOfOrdersByCourierIdAndStatus(Long courierId, OrderStatus status) {
+        return orderRepository.findByCourierIdAndStatus(courierId, status);
+    }
+
+    public Order getOrderByIdAndRestaurantId(Long id, Long restaurantId) {
+        return orderRepository
+                .findByIdAndRestaurantId(id, restaurantId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Заказ не найден или не принадлежит ресторану с id " + restaurantId));
+    }
+
+    public List<Order> getListOfOrdersByRestaurantIdAndStatus(Long restaurantId, OrderStatus status) {
+        return orderRepository.findByRestaurantIdAndStatus(restaurantId, status);
+    }
+
+    public Order save(Order order) {
+        return orderRepository.save(order);
     }
 }

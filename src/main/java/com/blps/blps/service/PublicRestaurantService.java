@@ -24,8 +24,8 @@ import org.springframework.stereotype.Service;
 public class PublicRestaurantService {
 
     private final RestaurantRepository restaurantRepository;
-    private final RestaurantMapper restaurantMapper;
     private final ProductRepository productRepository;
+    private final RestaurantMapper restaurantMapper;
     private final ProductMapper productMapper;
 
     public RestaurantsWithTopByTypeResponse getTop3RestaurantsWithCategories(String city) {

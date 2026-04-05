@@ -10,7 +10,6 @@ import com.blps.blps.entity.enums.OrderStatus;
 import com.blps.blps.exception.BusinessException;
 import com.blps.blps.exception.ResourceNotFoundException;
 import com.blps.blps.repository.CourierRepository;
-import com.blps.blps.repository.OrderRepository;
 import com.blps.blps.utils.DistanceCalculator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,18 +22,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class CourierService {
 
     private final CourierRepository courierRepository;
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final DistanceCalculator distanceCalculator;
 
     @Transactional
     public void assignCourierToOrder(Long orderId, Courier courier) {
-        Order order = orderRepository
-                .findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден: " + orderId));
+        Order order = orderService.getOrderById(orderId);
 
         order.setCourier(courier);
         order.setStatus(OrderStatus.ASSIGNED);
-        orderRepository.save(order);
+        orderService.save(order);
 
         courier.setActiveOrdersCount(courier.getActiveOrdersCount() + 1);
         if (courier.getActiveOrdersCount() >= 2) {
@@ -45,9 +42,7 @@ public class CourierService {
 
     @Transactional
     public RestaurantOrCourierOrderActionResponse pickUpOrder(Long orderId, Long courierId) {
-        Order order = orderRepository
-                .findByIdAndCourierId(orderId, courierId)
-                .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден или не принадлежит курьеру"));
+        Order order = orderService.getOrderByIdAndCourierId(orderId, courierId);
 
         if (order.getStatus() != OrderStatus.READY) {
             throw new BusinessException(
@@ -55,7 +50,7 @@ public class CourierService {
         }
 
         order.setStatus(OrderStatus.PICKED_UP);
-        orderRepository.save(order);
+        orderService.save(order);
 
         return new RestaurantOrCourierOrderActionResponse(
                 order.getId(), order.getStatus().name(), "Заказ принят курьером");
@@ -63,9 +58,7 @@ public class CourierService {
 
     @Transactional
     public RestaurantOrCourierOrderActionResponse deliverOrder(Long orderId, Long courierId) {
-        Order order = orderRepository
-                .findByIdAndCourierId(orderId, courierId)
-                .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден или не принадлежит курьеру"));
+        Order order = orderService.getOrderByIdAndCourierId(orderId, courierId);
 
         if (order.getStatus() != OrderStatus.PICKED_UP) {
             throw new BusinessException(
@@ -74,7 +67,7 @@ public class CourierService {
         }
 
         order.setStatus(OrderStatus.DELIVERED);
-        orderRepository.save(order);
+        orderService.save(order);
 
         Courier courier = courierRepository
                 .findById(courierId)
@@ -90,7 +83,7 @@ public class CourierService {
     }
 
     public List<CourierOrderSummaryDto> getOrdersByStatus(Long courierId, OrderStatus status) {
-        List<Order> orders = orderRepository.findByCourierIdAndStatus(courierId, status);
+        List<Order> orders = orderService.getListOfOrdersByCourierIdAndStatus(courierId, status);
         return orders.stream().map(this::toSummaryDto).collect(Collectors.toList());
     }
 

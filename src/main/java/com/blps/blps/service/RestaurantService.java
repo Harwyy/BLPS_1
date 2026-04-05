@@ -4,11 +4,12 @@ import com.blps.blps.dto.RestaurantOrderSummaryDto;
 import com.blps.blps.dto.response.RestaurantOrCourierOrderActionResponse;
 import com.blps.blps.entity.Courier;
 import com.blps.blps.entity.Order;
+import com.blps.blps.entity.Restaurant;
 import com.blps.blps.entity.enums.OrderStatus;
 import com.blps.blps.exception.BusinessException;
 import com.blps.blps.exception.ResourceNotFoundException;
 import com.blps.blps.mapper.RestaurantOrderSummaryMapper;
-import com.blps.blps.repository.OrderRepository;
+import com.blps.blps.repository.RestaurantRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -19,16 +20,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RestaurantService {
 
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
     private final CourierService courierService;
+    private final RestaurantRepository restaurantRepository;
     private final RestaurantOrderSummaryMapper restaurantOrderSummaryMapper;
 
     @Transactional
     public RestaurantOrCourierOrderActionResponse rejectOrder(Long orderId, Long restaurantId) {
-        Order order = orderRepository
-                .findByIdAndRestaurantId(orderId, restaurantId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Заказ не найден или не принадлежит ресторану с id " + restaurantId));
+        Order order = orderService.getOrderByIdAndRestaurantId(orderId, restaurantId);
 
         if (order.getStatus() != OrderStatus.PAID) {
             throw new BusinessException(
@@ -36,7 +35,7 @@ public class RestaurantService {
         }
 
         order.setStatus(OrderStatus.CANCELLED_BY_REST);
-        orderRepository.save(order);
+        orderService.save(order);
 
         return new RestaurantOrCourierOrderActionResponse(
                 order.getId(), order.getStatus().name(), "Заказ успешно отклонён");
@@ -44,10 +43,7 @@ public class RestaurantService {
 
     @Transactional
     public RestaurantOrCourierOrderActionResponse confirmOrder(Long orderId, Long restaurantId) {
-        Order order = orderRepository
-                .findByIdAndRestaurantId(orderId, restaurantId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Заказ не найден или не принадлежит ресторану с id " + restaurantId));
+        Order order = orderService.getOrderByIdAndRestaurantId(orderId, restaurantId);
 
         if (order.getStatus() != OrderStatus.PAID) {
             throw new BusinessException(
@@ -55,7 +51,7 @@ public class RestaurantService {
         }
 
         order.setStatus(OrderStatus.PREPARING);
-        orderRepository.save(order);
+        orderService.save(order);
 
         Courier bestCourier = courierService.findBestCourierForOrder(order);
         courierService.assignCourierToOrder(orderId, bestCourier);
@@ -66,10 +62,7 @@ public class RestaurantService {
 
     @Transactional
     public RestaurantOrCourierOrderActionResponse markOrderReady(Long orderId, Long restaurantId) {
-        Order order = orderRepository
-                .findByIdAndRestaurantId(orderId, restaurantId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Заказ не найден или не принадлежит ресторану с id " + restaurantId));
+        Order order = orderService.getOrderByIdAndRestaurantId(orderId, restaurantId);
 
         if (order.getStatus() != OrderStatus.ASSIGNED) {
             throw new BusinessException(
@@ -78,14 +71,20 @@ public class RestaurantService {
         }
 
         order.setStatus(OrderStatus.READY);
-        orderRepository.save(order);
+        orderService.save(order);
 
         return new RestaurantOrCourierOrderActionResponse(
                 order.getId(), order.getStatus().name(), "Заказ готов к выдаче курьеру");
     }
 
     public List<RestaurantOrderSummaryDto> getOrdersByStatus(Long restaurantId, OrderStatus status) {
-        List<Order> orders = orderRepository.findByRestaurantIdAndStatus(restaurantId, status);
+        List<Order> orders = orderService.getListOfOrdersByRestaurantIdAndStatus(restaurantId, status);
         return orders.stream().map(restaurantOrderSummaryMapper::toSummaryDto).collect(Collectors.toList());
+    }
+
+    public Restaurant getRestaurantById(Long id) {
+        return restaurantRepository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Ресторан не найден: " + id));
     }
 }
