@@ -1,6 +1,5 @@
 package com.blps.blps.entity;
 
-import com.blps.blps.entity.enums.OrderPaymentStatus;
 import com.blps.blps.entity.enums.OrderStatus;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -45,10 +44,6 @@ public class Order {
 
     @Column(name = "delivery_time")
     private Integer estimatedDeliveryTime;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_status", nullable = false)
-    private OrderPaymentStatus paymentStatus = OrderPaymentStatus.PENDING;
 
     @Column(name = "comment_to_restaurant")
     private String commentToRestaurant;

@@ -4,7 +4,6 @@ import com.blps.blps.dto.AddressDto;
 import com.blps.blps.dto.CourierDto;
 import com.blps.blps.dto.OrderItemDto;
 import com.blps.blps.dto.RestaurantDto;
-import com.blps.blps.entity.enums.OrderPaymentStatus;
 import com.blps.blps.entity.enums.OrderStatus;
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +20,6 @@ public class OrderResponse {
     private CourierDto courier;
     private AddressDto address;
     private OrderStatus status;
-    private OrderPaymentStatus paymentStatus;
     private Integer estimatedDeliveryTime;
     private String commentToRestaurant;
     private String commentToCourier;

@@ -25,7 +25,6 @@ public class OrderMapper {
         }
         response.setAddress(addressMapper.toDto(order.getDeliveryAddress()));
         response.setStatus(order.getStatus());
-        response.setPaymentStatus(order.getPaymentStatus());
         response.setEstimatedDeliveryTime(order.getEstimatedDeliveryTime());
         response.setCommentToRestaurant(order.getCommentToRestaurant());
         response.setCommentToCourier(order.getCommentToCourier());

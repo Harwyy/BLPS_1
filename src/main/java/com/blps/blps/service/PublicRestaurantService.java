@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,26 +29,39 @@ public class PublicRestaurantService {
     private final RestaurantMapper restaurantMapper;
     private final ProductMapper productMapper;
 
-    public RestaurantsWithTopByTypeResponse getTop3RestaurantsWithCategories(String city) {
-        List<Restaurant> overallTop3 =
-                restaurantRepository.findTop3ByAddress_CityAndStatusOrderByRatingDesc(city, RestaurantStatus.ACTIVE);
+    public RestaurantsWithTopByTypeResponse getTop3RestaurantsWithCategories(String city, boolean all) {
+        List<Restaurant> restaurantsInCity = restaurantRepository.findAllByAddress_CityAndStatus(city, RestaurantStatus.ACTIVE);
 
-        List<Restaurant> allInCity = restaurantRepository.findAllByAddress_CityAndStatus(city, RestaurantStatus.ACTIVE);
-        Set<RestaurantType> types = allInCity.stream().map(Restaurant::getType).collect(Collectors.toSet());
+        if (all) {
+            List<RestaurantDto> allDtos = restaurantsInCity.stream()
+                    .map(restaurantMapper::toDto)
+                    .collect(Collectors.toList());
+            return new RestaurantsWithTopByTypeResponse(allDtos, Map.of());
+        }
+
+        List<Restaurant> overallTop3 = restaurantRepository.findTop3ByAddress_CityAndStatusOrderByRatingDesc(city, RestaurantStatus.ACTIVE);
+
+        Set<RestaurantType> types = restaurantsInCity.stream()
+                .map(Restaurant::getType)
+                .collect(Collectors.toSet());
 
         Map<RestaurantType, List<RestaurantDto>> topByType = new LinkedHashMap<>();
         for (RestaurantType type : types) {
             List<Restaurant> top3ByType = restaurantRepository.findTop3ByAddress_CityAndTypeAndStatusOrderByRatingDesc(
                     city, type, RestaurantStatus.ACTIVE);
-            topByType.put(type, top3ByType.stream().map(restaurantMapper::toDto).collect(Collectors.toList()));
+            topByType.put(type, top3ByType.stream()
+                    .map(restaurantMapper::toDto)
+                    .collect(Collectors.toList()));
         }
 
         return new RestaurantsWithTopByTypeResponse(
-                overallTop3.stream().map(restaurantMapper::toDto).collect(Collectors.toList()), topByType);
+                overallTop3.stream().map(restaurantMapper::toDto).collect(Collectors.toList()),
+                topByType
+        );
     }
 
-    public List<ProductResponse> getMenu(Long restaurantId) {
-        List<Product> products = productRepository.findByRestaurantIdAndAvailableTrue(restaurantId);
+    public List<ProductResponse> getMenu(Long restaurantId, Pageable pageable) {
+        List<Product> products = productRepository.findByRestaurantIdAndAvailableTrue(restaurantId, pageable);
         return products.stream().map(productMapper::toResponse).collect(Collectors.toList());
     }
 }

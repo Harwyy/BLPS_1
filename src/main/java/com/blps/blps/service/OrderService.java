@@ -4,7 +4,6 @@ import com.blps.blps.dto.request.OrderCreateRequest;
 import com.blps.blps.dto.request.OrderItemRequest;
 import com.blps.blps.dto.response.OrderResponse;
 import com.blps.blps.entity.*;
-import com.blps.blps.entity.enums.OrderPaymentStatus;
 import com.blps.blps.entity.enums.OrderStatus;
 import com.blps.blps.exception.BusinessException;
 import com.blps.blps.exception.ResourceNotFoundException;
@@ -26,7 +25,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final UserService userService;
-    private final RestaurantService restaurantService;
+    private final RestaurantRepository restaurantRepository;
     private final ProductService productService;
     private final AddressService addressService;
     private final PaymentService paymentService;
@@ -43,7 +42,9 @@ public class OrderService {
 
         User user = userService.getUserById(request.getUserId());
 
-        Restaurant restaurant = restaurantService.getRestaurantById(request.getRestaurantId());
+        Restaurant restaurant = restaurantRepository
+                .findById(request.getRestaurantId())
+                .orElseThrow(() -> new ResourceNotFoundException("Ресторан не найден: " + request.getRestaurantId()));
 
         Address deliveryAddress;
         if (request.getAddress() != null && request.getAddress().getCity() != null) {
@@ -64,7 +65,6 @@ public class OrderService {
         order.setCommentToCourier(request.getCommentToCourier());
         order.setLeaveAtDoor(request.getLeaveAtDoor());
         order.setStatus(OrderStatus.CREATED);
-        order.setPaymentStatus(OrderPaymentStatus.PENDING);
 
         BigDecimal total = BigDecimal.ZERO;
         List<OrderItem> orderItems = new ArrayList<>();
@@ -101,7 +101,6 @@ public class OrderService {
 
         if (!isWithinDistance) {
             savedOrder.setStatus(OrderStatus.CANCELLED);
-            order.setPaymentStatus(OrderPaymentStatus.FAILED);
             orderRepository.save(savedOrder);
             return orderMapper.toResponse(savedOrder);
         }
@@ -112,12 +111,10 @@ public class OrderService {
         boolean paymentSuccess = paymentService.processPayment(savedOrder);
         if (!paymentSuccess) {
             savedOrder.setStatus(OrderStatus.CANCELLED);
-            order.setPaymentStatus(OrderPaymentStatus.FAILED);
             orderRepository.save(savedOrder);
             throw new BusinessException("Оплата не прошла. Заказ отменён.");
         }
 
-        savedOrder.setPaymentStatus(OrderPaymentStatus.PAID);
         savedOrder.setStatus(OrderStatus.PAID);
         orderRepository.save(savedOrder);
 
