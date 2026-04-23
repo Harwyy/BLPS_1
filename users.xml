@@ -36,4 +36,10 @@
         <role>ROLE_COURIER</role>
         <referenceId>-1</referenceId>
     </user>
+    <user>
+        <username>Harwyyy</username>
+        <password>$2a$10$wKdDHiRoiDb.eDI/g4kKsuoOp4Pxo/YILs5d.z2cfd0WD4s9uI1mS</password>
+        <role>ROLE_CUSTOMER</role>
+        <referenceId>1</referenceId>
+    </user>
 </users>

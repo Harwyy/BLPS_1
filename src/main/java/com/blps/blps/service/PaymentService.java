@@ -9,4 +9,6 @@ public class PaymentService {
     public boolean processPayment(Order order) {
         return true;
     }
+
+    public boolean processRefund(Order order, int percent) {return true;}
 }

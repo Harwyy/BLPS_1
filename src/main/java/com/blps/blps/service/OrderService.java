@@ -129,6 +129,39 @@ public class OrderService {
         });
     }
 
+    public OrderResponse cancelOrderByCustomer(Long orderId, Long customerId) {
+        return transactionTemplate.execute(status -> {
+            try {
+                Order order = orderRepository.findById(orderId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Заказ не найден: " + orderId));
+
+                if (!order.getUser().getId().equals(customerId)) {
+                    throw new BusinessException("Заказ не принадлежит данному клиенту");
+                }
+
+                OrderStatus currentStatus = order.getStatus();
+                int refundPercent = getRefundPercent(currentStatus);
+
+                if (refundPercent == 0) {
+                    throw new BusinessException("Возврат невозможен для заказа в статусе " + currentStatus);
+                }
+
+                boolean refundSuccess = paymentService.processRefund(order, refundPercent);
+                if (!refundSuccess) {
+                    throw new BusinessException("Не удалось выполнить возврат");
+                }
+
+                order.setStatus(OrderStatus.CANCELLED);
+                orderRepository.save(order);
+
+                return orderMapper.toResponse(order);
+            } catch (Exception e) {
+                status.setRollbackOnly();
+                throw e;
+            }
+        });
+    }
+
     public OrderResponse getOrderResponseByOrderId(Long id) {
         Order order =
                 orderRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Заказ не найден: " + id));
@@ -162,5 +195,19 @@ public class OrderService {
 
     public Order save(Order order) {
         return orderRepository.save(order);
+    }
+
+    private int getRefundPercent(OrderStatus status) {
+        return switch (status) {
+            case PENDING,
+                 CREATED,
+                 WAITING_PAYMENT,
+                 PAID,
+                 CANCELLED_BY_REST,
+                 PREPARING,
+                 ASSIGNED -> 90;
+            case READY -> 50;
+            default -> 0;
+        };
     }
 }
