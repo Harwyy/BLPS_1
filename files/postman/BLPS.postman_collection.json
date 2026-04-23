@@ -1,0 +1,757 @@
+{
+  "info": {
+    "_postman_id": "0670c2b5-a225-47fa-8ad1-663eed325e5c",
+    "name": "BLPS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54238529",
+    "_collection_link": "https://go.postman.co/collection/54238529-0670c2b5-a225-47fa-8ad1-663eed325e5c?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register_customer",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"Harwyy\",\r\n    \"password\": \"Harwyy\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/auth/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"admin123\",\r\n    \"password\": \"admin123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Who_am_i",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njg4NTc1MywiZXhwIjoxNzc2OTcyMTUzfQ.Vh93oDRz75PGj-bd6zznVdUwXYya6Tp3CKmIABrSpQ0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/auth/whoami",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "auth",
+                "whoami"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Get_users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njg4NTc1MywiZXhwIjoxNzc2OTcyMTUzfQ.Vh93oDRz75PGj-bd6zznVdUwXYya6Tp3CKmIABrSpQ0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/admin/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create_user",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njg4NTc1MywiZXhwIjoxNzc2OTcyMTUzfQ.Vh93oDRz75PGj-bd6zznVdUwXYya6Tp3CKmIABrSpQ0",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"username\": \"COURIER\",\r\n    \"password\": \"COURIER\",\r\n    \"role\": \"ROLE_COURIER\",\r\n    \"referenceId\": -1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/admin/users",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "admin",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Public_restaurant",
+      "item": [
+        {
+          "name": "Get_restaurants",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/public/restaurants?city=Москва",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "public",
+                "restaurants"
+              ],
+              "query": [
+                {
+                  "key": "city",
+                  "value": "Москва"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get_restaurant_menu",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/public/restaurants/9/menu",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "public",
+                "restaurants",
+                "9",
+                "menu"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Get_order_by_id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/orders/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "orders",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create_order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userId\": 1,\r\n  \"restaurantId\": 8,\r\n  \"items\": [\r\n    {\r\n      \"productId\": 6,\r\n      \"quantity\": 2\r\n    },\r\n    {\r\n      \"productId\": 7,\r\n      \"quantity\": 1\r\n    }\r\n  ],\r\n  \"commentToRestaurant\": \"Пожалуйста, добавьте соус\",\r\n  \"commentToCourier\": \"Позвоните за 5 минут\",\r\n  \"leaveAtDoor\": true\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/orders",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Restaurant",
+      "item": [
+        {
+          "name": "Get_orders_in_pending_status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/restaurants/8/orders/pending",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "restaurants",
+                "8",
+                "orders",
+                "pending"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get_orders_in_confirmed_status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/restaurants/8/orders/confirmed",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "restaurants",
+                "8",
+                "orders",
+                "confirmed"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm_order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/restaurants/8/orders/1/confirm",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "restaurants",
+                "8",
+                "orders",
+                "1",
+                "confirm"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Make_ready_order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/restaurants/8/orders/1/ready",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "restaurants",
+                "8",
+                "orders",
+                "1",
+                "ready"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject_order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/restaurants/8/orders/2/reject",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "restaurants",
+                "8",
+                "orders",
+                "2",
+                "reject"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Batch_make_ready_orders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"orderIds\": [3, 4]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/restaurants/8/batch/ready",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "restaurants",
+                "8",
+                "batch",
+                "ready"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Batch_assign_couriers_on_orders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"orderIds\": [3, 4]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/restaurants/8/batch/assign-couriers",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "restaurants",
+                "8",
+                "batch",
+                "assign-couriers"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Courier",
+      "item": [
+        {
+          "name": "Get_assgned_orders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/couriers/1/orders/assigned",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "couriers",
+                "1",
+                "orders",
+                "assigned"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get_ready_orders",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Get_pick_up_orders",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/couriers/1/orders/picked-up",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "couriers",
+                "1",
+                "orders",
+                "picked-up"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pick_up_order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/couriers/1/orders/1/pickup",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "couriers",
+                "1",
+                "orders",
+                "1",
+                "pickup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deliver_order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbjEyMyIsImlhdCI6MTc3Njk1NDkxMCwiZXhwIjoxNzc3MDQxMzEwfQ.fLML6R21s9p08-z16BFk1Mtj2GR_nxi42yNl1hZWL_g",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/blps-0.0.1-SNAPSHOT/api/couriers/1/orders/1/deliver",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "blps-0.0.1-SNAPSHOT",
+                "api",
+                "couriers",
+                "1",
+                "orders",
+                "1",
+                "deliver"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

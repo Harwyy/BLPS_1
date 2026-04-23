@@ -700,6 +700,167 @@ Content-Type: application/json
     "message": "Курьер назначен"
   }
 ]
+```
+
+### 17. Регистрация нового клиента
+
+Регистрирует пользователя с ролью ROLE_CUSTOMER.
+
+`POST /api/auth/register`
+
+**Параметры запроса**
+
+| Параметр | Тип     | Обязательный | Описание             |
+|----------|---------|--------------|----------------------|
+| username | string  | да           | Логин пользователя   |
+| password | string  | да           | Пароль  пользователя |
+
+**Пример запроса**
+
+```
+POST /api/auth/register
+Content-Type: application/json
+
+{
+    "username": "Harwyy",
+    "password": "Harwyy"
+}
+```
+
+**Ответ (200 OK)**
+
+```json
+{
+  "message": "User registered successfully"
+}
+```  
+### 18. Вход в систему
+
+Аутентифицирует пользователя по логину и паролю и возвращает JWT-токен для доступа к защищённым эндпоинтам.
+
+`POST /api/auth/login`
+
+**Параметры запроса**
+
+| Параметр | Тип     | Обязательный | Описание             |
+|----------|---------|--------------|----------------------|
+| username | string  | да           | Логин пользователя   |
+| password | string  | да           | Пароль  пользователя |
+
+**Пример запроса**
+
+```
+POST /api/auth/login
+Content-Type: application/json
+
+{
+    "username": "Harwyy",
+    "password": "Harwyy"
+}
+```
+
+**Ответ (200 OK)**
+
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiJ9...",
+  "tokenType": "Bearer"
+}
+```  
+
+### 19. Информация о текущем пользователе
+
+Возвращает объект Authentication Spring Security.
+
+**Пример запроса**
+
+```
+GET /api/auth/whoami
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
+
+**Ответ (200 OK)**
+
+```json
+{
+  "authorities": [
+    {
+      "authority": "ROLE_ADMIN"
+    }
+  ],
+  "name": "admin123",
+  "authenticated": true
+  // ... другие поля Authentication
+}
+```  
+
+### 20. Получить всех пользователей
+
+Возвращает список всех учётных записей из XML-хранилища.
+
+**Пример запроса**
+
+```
+GET /api/admin/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
+
+**Ответ (200 OK)**
+
+```
+[
+    {
+        "username": "admin123",
+        "role": "ROLE_ADMIN",
+        "referenceId": -1
+    },
+    {
+        "username": "Harwyy",
+        "role": "ROLE_CUSTOMER",
+        "referenceId": -1
+    }
+]
+```
+
+### 21. Создать нового пользователя
+
+Создаёт учётную запись с указанной ролью и (опционально) referenceId.
+
+`POST /api/admin/users`
+
+**Параметры запроса**
+
+| Параметр     | Тип     | Обязательный | Описание                                                       |
+|--------------|---------|--------------|----------------------------------------------------------------|
+| username     | string  | да           | Логин                                                          |
+| password     | string  | да           | Пароль                                                         |
+| role         | string  | да           | Роль: ROLE_CUSTOMER, ROLE_RESTAURANT, ROLE_COURIER, ROLE_ADMIN |
+| referenceId  | string  | нет          | ID связанной бизнес-сущности                                   |
+
+
+**Пример запроса**
+
+```
+POST /api/admin/users
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+
+{
+    "username": "COURIER",
+    "password": "COURIER",
+    "role": "ROLE_COURIER",
+    "referenceId": 1
+}
+```
+
+**Ответ (200 OK)**
+
+```json
+{
+  "username": "COURIER",
+  "role": "ROLE_COURIER",
+  "referenceId": 1
+}
 ```  
 
 ## Прецеденты
@@ -847,6 +1008,56 @@ Content-Type: application/json
 - Продукт недоступен или не принадлежит ресторану → исключение, откат
 - Нет адреса доставки → исключение, откат
 - Адрес вне зоны доставки → заказ отменяется (статус CANCELLED), но транзакция фиксируется. В этом случае оплата не вызывается
+
+## Роли и привилегии
+
+| Роль            | Описание                                                                                         |
+|-----------------|--------------------------------------------------------------------------------------------------|
+| ROLE_CUSTOMER   | Клиент сервиса. Просматривает рестораны, меню, создаёт заказы.                                   |
+| ROLE_RESTAURANT | Владелец/менеджер ресторана. Управляет заказами своего ресторана.                                |
+| ROLE_COURIER    | Курьер. Работает с заказами, назначенными ему.                                                   |
+| ROLE_ADMIN      | Администратор системы. Имеет полный доступ ко всем операциям без ограничений по принадлежности.  |
+
+### Аутентификация и регистрация (/api/auth/**)
+
+Эти эндпоинты открыты для всех
+
+| Метод  | Эндпоинт           | Назначение                                    |
+|--------|--------------------|-----------------------------------------------|
+| POST   | /api/auth/login    | Аутентификация, получение JWT                 |
+| POST   | /api/auth/register | Регистрация нового клиента                    |
+| GET    | /api/auth/whoami   | Отладочная информация о текущем пользователе  |
+
+### Клиентские операции
+
+| Метод | Эндпоинт                                    | Необходимые роли |
+|-------|---------------------------------------------|------------------|
+| GET   | /api/public/restaurants?city=...&all=...    | CUSTOMER, ADMIN  |
+| GET   | /api/public/restaurants/{restaurantId}/menu | CUSTOMER, ADMIN  |
+| GET   | /api/orders                                 | CUSTOMER, ADMIN  |
+| GET   | /api/orders/{id}                            | CUSTOMER, ADMIN  |
+
+### Операции ресторана
+
+| Метод | Эндпоинт                                                 | Необходимые роли                    |
+|-------|----------------------------------------------------------|-------------------------------------|
+| GET   | /api/restaurants/{restaurantId}/orders/pending           | RESTAURANT (с проверкой) или ADMIN  |
+| GET   | /api/restaurants/{restaurantId}/orders/confirmed         | RESTAURANT (с проверкой) или ADMIN  |
+| POST  | /api/restaurants/{restaurantId}/orders/{orderId}/reject  | RESTAURANT (с проверкой) или ADMIN  |
+| POST  | /api/restaurants/{restaurantId}/orders/{orderId}/confirm | RESTAURANT (с проверкой) или ADMIN  |
+| POST  | /api/restaurants/{restaurantId}/orders/{orderId}/ready   | RESTAURANT (с проверкой) или ADMIN  |
+| POST  | /api/restaurants/{restaurantId}/batch/ready              | RESTAURANT (с проверкой) или ADMIN  |
+| POST  | /api/restaurants/{restaurantId}/batch/assign-couriers    | RESTAURANT (с проверкой) или ADMIN  |
+
+### Операции курьера
+
+| Метод  | Эндпоинт                                            | Необходимые роли                 |
+|--------|-----------------------------------------------------|----------------------------------|
+| GET    | /api/couriers/{courierId}/orders/assigned           | COURIER (с проверкой) или ADMIN  |
+| GET    | /api/couriers/{courierId}/orders/ready              | COURIER (с проверкой) или ADMIN  |
+| GET    | /api/couriers/{courierId}/orders/picked-up          | COURIER (с проверкой) или ADMIN  |
+| POST   | /api/couriers/{courierId}/orders/{orderId}/pickup   | COURIER (с проверкой) или ADMIN  |
+| POST   | /api/couriers/{courierId}/orders/{orderId}/deliver  | COURIER (с проверкой) или ADMIN  |
 
 ## Запуск и управление проектом
 

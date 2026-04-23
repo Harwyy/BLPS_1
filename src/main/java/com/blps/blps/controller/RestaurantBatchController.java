@@ -5,18 +5,20 @@ import com.blps.blps.dto.response.RestaurantOrCourierOrderActionResponse;
 import com.blps.blps.service.restaurantServices.RestaurantBatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/restaurants/{restaurantId}/batch")
-@RequiredArgsConstructor
 public class RestaurantBatchController  {
 
     private final RestaurantBatchService restaurantBatchService;
 
     @PostMapping("/ready")
+    @PreAuthorize("(hasRole('RESTAURANT') and @restaurantSecurity.isRestaurantMatch(#restaurantId, authentication)) or hasRole('ADMIN')")
     public ResponseEntity<List<RestaurantOrCourierOrderActionResponse>> markOrdersReady(
             @PathVariable Long restaurantId,
             @RequestBody BatchOrderRequest request) {
@@ -24,6 +26,7 @@ public class RestaurantBatchController  {
     }
 
     @PostMapping("/assign-couriers")
+    @PreAuthorize("(hasRole('RESTAURANT') and @restaurantSecurity.isRestaurantMatch(#restaurantId, authentication)) or hasRole('ADMIN')")
     public ResponseEntity<List<RestaurantOrCourierOrderActionResponse>> assignCouriers(
             @PathVariable Long restaurantId,
             @RequestBody BatchOrderRequest request) {

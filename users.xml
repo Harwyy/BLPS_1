@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<users>
+    <user>
+        <username>admin123</username>
+        <password>$2a$10$tBUejTgSB5pXp664YrDx0uUlJdBuAyO26kl.m2ose5ZypTq0Ka7Hi</password>
+        <role>ROLE_ADMIN</role>
+        <referenceId>-1</referenceId>
+    </user>
+    <user>
+        <username>cus1</username>
+        <password>$2a$10$D8e/c7xPlfyoFtkVwZbOQu8pJJWOiDpjPTVXh9Kdsc4xUmQ1Qy9vO</password>
+        <role>ROLE_CUSTOMER</role>
+        <referenceId>-1</referenceId>
+    </user>
+    <user>
+        <username>cur1</username>
+        <password>$2a$10$4s2o9drIgqtSLslhxMjaVe22dfyHjlSDfZ8r.uTu/iLTv.0wf2TRC</password>
+        <role>ROLE_COURIER</role>
+        <referenceId>1</referenceId>
+    </user>
+    <user>
+        <username>admin1234</username>
+        <password>$2a$10$r24ROcXfQuOtLfxOTo5KtuCku07OxfQj3u7N.3DBScUqnnjxU4sBe</password>
+        <role>ROLE_CUSTOMER</role>
+        <referenceId>-1</referenceId>
+    </user>
+    <user>
+        <username>Harwyy</username>
+        <password>$2a$10$UeIo0KthlaXkG497NQkcyOMpIZeFZUkmBGB5PRBPajzizl5AFGTe.</password>
+        <role>ROLE_CUSTOMER</role>
+        <referenceId>-1</referenceId>
+    </user>
+    <user>
+        <username>COURIER</username>
+        <password>$2a$10$.ih4Ms/ok/GoG1ZGexc7ve5A5te.TUQVhnUch4IP5d7bJpDeyvn1m</password>
+        <role>ROLE_COURIER</role>
+        <referenceId>-1</referenceId>
+    </user>
+</users>
